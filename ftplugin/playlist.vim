@@ -11,12 +11,20 @@ endfunction
 " @H {
 " @H HELP/H: command listing (LONG/SHORT forms), command case insensitve
 " @H LOAD/L <trackname>: load and start playing resource <trackname>
-function! LoadMP3File(filename)
+function! s:LoadMP3File(filename)
     call <SID>SendCommand('LOAD ' . a:filename)
 endfunction
+
+function! s:LoadCurrentLine()
+    call <SID>LoadMP3File(getline('.'))
+endfunction
+
 " @H LOADPAUSED/LP <trackname>: load but do not start playing resource <trackname>
 " @H LOADLIST/LL <entry> <url>: load a playlist from given <url>, and display its entries, optionally load and play one of these specificed by the integer <entry> (<0: just list, 0: play last track, >0:play track with that position in list)
 " @H PAUSE/P: pause playback
+function! s:PausePlayback()
+    call <SID>SendCommand('PAUSE')
+endfunction
 " @H STOP/S: stop playback (closes file)
 " @H JUMP/J <frame>|<+offset>|<-offset>|<[+|-]seconds>s: jump to mpeg frame <frame> or change position by offset, same in seconds if number followed by "s"
 " @H VOLUME/V <percent>: set volume in (0..100...); float value
@@ -51,3 +59,15 @@ endfunction
 " @H }
 "
 " /Volumes/KINGSTON/Music/The Black Mages/The Skies Above/The Black Mages - Maybe I'm a Lion (Final Fantasy VIII).mp3
+
+"Play the file on the current line
+
+nnoremap <Plug>(playlist-play-selected) :call <SID>LoadCurrentLine()<cr>
+nnoremap <Plug>(playlist-pause-playback) :call <SID>PausePlayback()<cr>
+
+
+
+" Nicer UI Mappings
+" TODO: Let users override or toggle these or something
+nmap <buffer> <cr> <Plug>(playlist-play-selected)
+nmap <buffer> <space> <Plug>(playlist-pause-playback)
