@@ -82,7 +82,17 @@ def poll_mpg123(out, queue):
     out.close()
 
 
-def main(playlist_file):
+def poll_vim(fifo_name, queue):
+    """Repeatedly open and read the fifo vim uses to send commands, and put
+    the results on a synchronized queue
+    """
+    while True:
+        with open(fifo_name) as fifo:
+            for line in fifo:
+                queue.put(line.strip().lower())
+
+
+def main(playlist_file, fifo_name):
     """Run a poller loop to manage the player
     """
     # load initial playlist
@@ -95,20 +105,35 @@ def main(playlist_file):
     player_poll_thread.daemon = True   # thread dies with the program
     player_poll_thread.start()
 
+    controller_input = Queue()
+    controller_poll_thread = Thread(target=poll_vim,
+                                    args=(fifo_name, controller_input))
+    controller_poll_thread.daemon = True
+    controller_poll_thread.start()
+
     # Start the initial track playing
     player.stdin.write("LOAD %s\n" % playlist.next_track())
     while True:
         # poll player
         try:
             message = player_output.get_nowait()
-            print message
+            print "message %s" % message
         except Empty:
             message = None
         if message == '@P 0':
-            next_track = playlist.next_track()
-            print "Loading %s" % next_track
-            player.stdin.write("LOAD %s\n" % next_track)
+            player.stdin.write("LOAD %s\n" % playlist.next_track())
+
+        try:
+            command = controller_input.get_nowait()
+            print "command %s" % command
+        except Empty:
+            command = None
+
+        if command == 'pause':
+            player.stdin.write("PAUSE\n")
+        elif command == 'skip':
+            player.stdin.write("LOAD %s\n" % playlist.next_track())
 
 
 if __name__ == '__main__':
-    main('/Users/mtozzi/playlist.m3u')
+    main('/Users/mtozzi/playlist.m3u', '/Users/mtozzi/.vim/tmp/playlist_fifo')
