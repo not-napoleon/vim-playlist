@@ -73,7 +73,7 @@ class Playlist(object):
         return self._playlist[self._curr_track]
 
 
-def enqueue_output(out, queue):
+def poll_mpg123(out, queue):
     """Blocking read the output pipe, and add results to the synchronized queue
     """
     for line in iter(out.readline, b''):
@@ -90,8 +90,8 @@ def main(playlist_file):
     # launch player
     player = Popen(['mpg123', '-R'], stdout=PIPE, stdin=PIPE)
     player_output = Queue()
-    player_poll_thread = Thread(target=enqueue_output, args=(player.stdout,
-                                                             player_output))
+    player_poll_thread = Thread(target=poll_mpg123,
+                                args=(player.stdout, player_output))
     player_poll_thread.daemon = True   # thread dies with the program
     player_poll_thread.start()
 

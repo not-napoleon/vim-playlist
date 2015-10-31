@@ -13,7 +13,7 @@ from mock import Mock, mock_open, patch
 from nose.tools import eq_
 
 
-from mpg123_wrapper import Playlist, enqueue_output
+from mpg123_wrapper import Playlist, poll_mpg123
 
 
 def test_ignore_comments():
@@ -82,7 +82,7 @@ class TestProcessOutput(object):
             '@F 12324 498 321.93 13.01',
         ]
 
-        enqueue_output(self.mock_out, self.mock_q)
+        poll_mpg123(self.mock_out, self.mock_q)
 
         self.mock_q.put.assert_called_once_with('@P 0')
 
@@ -91,7 +91,7 @@ class TestProcessOutput(object):
         """
         self.mock_out.readline.side_effect = ['@P 0']
 
-        enqueue_output(self.mock_out, self.mock_q)
+        poll_mpg123(self.mock_out, self.mock_q)
 
         self.mock_q.put.assert_called_once_with('@P 0')
 
@@ -109,6 +109,6 @@ class TestProcessOutput(object):
             "(buffer underflow)"
         ]
 
-        enqueue_output(self.mock_out, self.mock_q)
+        poll_mpg123(self.mock_out, self.mock_q)
 
         self.mock_q.put.assert_called_once_with('@P 0')
