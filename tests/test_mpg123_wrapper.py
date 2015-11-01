@@ -69,7 +69,7 @@ class TestProcessOutput(object):
         """
         self.mock_out = Mock()
         self.mock_out.readline = Mock()
-        self. mock_q = Mock()
+        self.mock_q = Mock()
 
     def test_process_ignore_frame(self):
         """Processing the output from mpg123 ignores @F lines
