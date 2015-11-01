@@ -1,0 +1,47 @@
+*playlist.txt* Control MPG123 from vim!
+
+====================================================================
+CONTENTS                                          *PlaylistContents*
+
+    1. Usage        |PlaylistUsage|
+    2. Mappings     |PlaylistMappings|
+    3. License      |PlaylistLicense|
+    4. Bugs         |PlaylistBugs|
+    5. Contributing |PlaylistContributing|
+    6. Changelog    |PlaylistChangelog|
+    7. Credits      |PlaylistCredits|
+
+====================================================================
+Section 1: Usage                                     *PlaylistUsage*
+
+
+====================================================================
+Section 2: Mappings                               *PlaylistMappings*
+
+
+====================================================================
+Section 3: License                                 *PlaylistLicense*
+
+vim-playlist is Copyright (c) 2015 Mark Tozzi and distributed under
+the MIT license.  See LICENSE file for details, or on github at
+https://github.com/not-napoleon/vim-playlist/blob/master/LICENSE
+
+
+====================================================================
+Section 4: Bugs                                       *PlaylistBugs*
+
+Please submit bug reports as github issues at
+https://github.com/not-napoleon/vim-playlist/issues
+
+====================================================================
+Section 1: Contributing                        *PlaylistContribuing*
+
+
+====================================================================
+Section 1: Changelog                             *PlaylistChangelog*
+
+
+====================================================================
+Section 1: Credits                                 *PlaylistCredits*
+
+Author: Mark Tozzi
