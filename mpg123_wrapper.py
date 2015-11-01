@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Interface between vim (or anything really) and mpg123
 
@@ -5,8 +6,11 @@ The main goal here is to detect when playing a song has finished and
 queue up the next track.  Additional interactive commands are read from
 a pipe and forwarded to mpg123
 """
+import fcntl
 import os
+import random
 from subprocess import Popen, PIPE
+import sys
 # See http://stackoverflow.com/a/4896288/529459 for details on why we're using
 # threading and the general IPC model --Tozzi(31 Oct 2015 13:23:00)
 from threading import Thread
@@ -18,33 +22,42 @@ class Playlist(object):
 
     """Manage playlist state"""
 
-    def __init__(self, playlist_filename, mode):
+    def __init__(self, mode):
         """Initilize the playlist
 
         :param playlist_filename: Filename of the playlist to laod
-        :param mode: one of ['seq', 'suf', 'rand']
+        :param mode: one of ['seq', 'shuf', 'rand']
 
         """
         self._playlist = []
-        self._playlist_file = playlist_filename
-        if mode not in ('seq'):
+        self._playlist_file = None
+        if mode not in ('seq', 'shuf'):
             raise NotImplementedError("Unsupported playback mode: %s", mode)
         self._mode = mode
-        self.reload()
-        print "Playlist initlized with %s" % self._playlist
         self._curr_track = None
-        if len(self._playlist):
-            self._curr_track = 0
 
-    def reload(self):
+    @property
+    def current_track(self):
+        """The name of the current track
+        """
+        if self._playlist:
+            return self._playlist[self._curr_track]
+        return None
+
+    def load(self, playlist_file):
         """Reload the playlist from the tied file
         """
-        basedir = os.path.dirname(self._playlist_file)
-        with open(self._playlist_file) as playlist:
-            self._playlist = Playlist.load_playlist(playlist, basedir)
+        basedir = os.path.dirname(playlist_file)
+        with open(playlist_file) as playlist:
+            self._playlist = Playlist.parse_playlist(playlist, basedir)
+        if len(self._playlist):
+            self._curr_track = 0
+        if self._mode == 'shuf':
+            random.shuffle(self._playlist)
+        print "Loaded %s tracks" % len(self._playlist)
 
     @staticmethod
-    def load_playlist(playlist_file, base_dir):
+    def parse_playlist(playlist_file, base_dir):
         """Load the given playlist file into a python data structure
 
         :param playlist_file: open file-like containing the playlist
@@ -67,7 +80,7 @@ class Playlist(object):
     def next_track(self):
         """Return the next track to play
         """
-        if self._mode == 'seq':
+        if self._mode in ('seq', 'shuf'):
             self._curr_track += 1
             self._curr_track %= len(self._playlist)
         return self._playlist[self._curr_track]
@@ -92,11 +105,17 @@ def poll_vim(fifo_name, queue):
                 queue.put(line.strip().lower())
 
 
-def main(playlist_file, fifo_name):
+def main(fifo_name, lockfile):
     """Run a poller loop to manage the player
     """
+    fp = open(lockfile, 'w')
+    try:
+        fcntl.lockf(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except IOError:
+        # another instance is running
+        sys.exit(1)
     # load initial playlist
-    playlist = Playlist(playlist_file, 'seq')
+    playlist = Playlist('shuf')
     # launch player
     player = Popen(['mpg123', '-R'], stdout=PIPE, stdin=PIPE)
     player_output = Queue()
@@ -111,8 +130,6 @@ def main(playlist_file, fifo_name):
     controller_poll_thread.daemon = True
     controller_poll_thread.start()
 
-    # Start the initial track playing
-    player.stdin.write("LOAD %s\n" % playlist.next_track())
     while True:
         # poll player
         try:
@@ -122,6 +139,7 @@ def main(playlist_file, fifo_name):
             message = None
         if message == '@P 0':
             player.stdin.write("LOAD %s\n" % playlist.next_track())
+            print playlist.current_track
 
         try:
             command = controller_input.get_nowait()
@@ -133,7 +151,17 @@ def main(playlist_file, fifo_name):
             player.stdin.write("PAUSE\n")
         elif command == 'skip':
             player.stdin.write("LOAD %s\n" % playlist.next_track())
+            print playlist.current_track
+        elif command and command.startswith("load"):
+            # Load playlist
+            playlist_file = command[5:]
+            playlist.load(playlist_file)
+            track = playlist.current_track
+            if track:
+                player.stdin.write("LOAD %s\n" % track)
+                print track
 
 
 if __name__ == '__main__':
-    main('/Users/mtozzi/playlist.m3u', '/Users/mtozzi/.vim/tmp/playlist_fifo')
+    _, fifo, lockfile = sys.argv
+    main(fifo, lockfile)

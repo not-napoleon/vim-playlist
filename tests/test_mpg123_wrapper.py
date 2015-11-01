@@ -22,7 +22,7 @@ def test_ignore_comments():
     sample = StringIO("\n".join([
         "#ignore this",
         "/actual/entry"]))
-    actual = Playlist.load_playlist(sample, '')
+    actual = Playlist.parse_playlist(sample, '')
     expected = ['/actual/entry']
     eq_(actual, expected)
 
@@ -31,7 +31,7 @@ def test_prepend_basepath():
     """Loading a relative path playlist entry prepends the basepath
     """
     sample = StringIO("actual/entry")
-    actual = Playlist.load_playlist(sample, '/basepath/')
+    actual = Playlist.parse_playlist(sample, '/basepath/')
     expected = ['/basepath/actual/entry']
     eq_(actual, expected)
 
@@ -40,7 +40,7 @@ def test_absolute_path():
     """"Loading an absolute path playlist entry doesn't use the basepath
     """
     sample = StringIO("/actual/entry")
-    actual = Playlist.load_playlist(sample, '/basepath/')
+    actual = Playlist.parse_playlist(sample, '/basepath/')
     expected = ['/actual/entry']
     eq_(actual, expected)
 
@@ -55,7 +55,8 @@ def test_next_seq():
         # http://bash-shell.net/blog/2014/feb/27/file-iteration-python-mock/
         # Apparently this is patched in python 3...
         mock_file.return_value.__iter__.return_value = sample.splitlines()
-        playlist = Playlist('bogus', 'seq')
+        playlist = Playlist('seq')
+        playlist.load('bogus')
     eq_(playlist.next_track(), '/second/file')
     eq_(playlist.next_track(), '/first/file')
 
