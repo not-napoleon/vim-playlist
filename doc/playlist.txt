@@ -14,10 +14,29 @@ CONTENTS                                          *PlaylistContents*
 ====================================================================
 Section 1: Usage                                     *PlaylistUsage*
 
+The plugin consists of two parts - a python script to manage the actual
+interaction with MPG123 and a set of vim mappings to send commands to the
+python server.  The script is persistent, and multiple vim sessions can talk
+to the same instance.  By default, it doesn't exit when you exit vim, so
+music will keep playing if (e.g.) you end your vim session to switch projects.
+
+To start, use `:PlaylistLoad <path_to_playlist>`.  This will launch the
+player and load up the given play list.  You can also open a playlist file
+and use the filetype mapping <Plug>(playlist-load-current).  See
+|PlaylistMappings| for more commands.
+
 
 ====================================================================
 Section 2: Mappings                               *PlaylistMappings*
 
+The following normal mode mappings are provided:
+
+<Plug>(playlist-pause) Pause the current track. Call again to resume.
+<Plug>(playlist-skip) Skip to the next track.  Behavior is dependant on mode
+<Plug>(playlist-quit) Terminate the player.
+
+Additionally, for playlist files (.m3u by default) you can use
+<Plug>(playlist-load-current) to load the current file.
 
 ====================================================================
 Section 3: License                                 *PlaylistLicense*

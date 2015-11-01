@@ -1,6 +1,15 @@
 # vim-playlist
 Use vim as a front-end to mpg123
 
+# Requirements
+vim-playlist requires a working python install.  At the moment, it's tested
+against python 2.7.  I hope to add 3.4 support soon.  No additional libraries
+are required to run the server, although the tests do have a few extra
+requirements (mock, nose)
+
+# Quick Start
+    :PlaylistLoad path_to_playlist
+
 # Why?
 The line of reasoning that has led me to this point can be summarized as:
 

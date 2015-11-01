@@ -3,14 +3,12 @@ if exists('g:loaded_playlist_ftp')
 endif
 let g:loaded_playlist_ftp=1
 
-noremap <Plug>(playlist-load-current) :PlaylistLoad <C-r>=expand('%:p')<cr><cr>
+nnoremap <Plug>(playlist-load-current) :PlaylistLoad <C-r>=expand('%:p')<cr><cr>
 
 
 " function! s:LoadCurrentLine()
 "     call <SID>LoadMP3File(getline('.'))
 " endfunction
-
-" /Volumes/KINGSTON/Music/The Black Mages/The Skies Above/The Black Mages - Maybe I'm a Lion (Final Fantasy VIII).mp3
 
 "Play the file on the current line
 

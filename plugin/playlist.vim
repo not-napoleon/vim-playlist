@@ -41,8 +41,8 @@ function! s:SendCommand(command_string)
 endfunction
 
 
-noremap <Plug>(playlist-pause) :call <SID>SendCommand('pause')<cr>
-noremap <Plug>(playlist-skip) :call <SID>SendCommand('skip')<cr>
-noremap <Plug>(playlist-quit) :call <SID>SendCommand('quit')<cr>
+nnoremap <Plug>(playlist-pause) :call <SID>SendCommand('pause')<cr>
+nnoremap <Plug>(playlist-skip) :call <SID>SendCommand('skip')<cr>
+nnoremap <Plug>(playlist-quit) :call <SID>SendCommand('quit')<cr>
 command -nargs=1 PlaylistLoad :call <SID>SendCommand('load ' . <q-args>)
-command PlaylistStart :call <SID>LaunchMiddleware()
+" command PlaylistStart :call <SID>LaunchMiddleware()
