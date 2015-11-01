@@ -160,6 +160,10 @@ def main(fifo_name, lockfile):
             if track:
                 player.stdin.write("LOAD %s\n" % track)
                 print track
+        elif command == 'quit':
+            # We don't need to tell mpg123 to shut down here because this will
+            # send an EOF to the pipe, which signals close anyway.
+            exit(0)
 
 
 if __name__ == '__main__':
